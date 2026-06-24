@@ -1,29 +1,49 @@
-import { useAuth } from './lib/AuthContext'
-import Login from './pages/Login'
-import SubmitReport from './pages/SubmitReport'
-import Dashboard from './pages/Dashboard'
-import { MANAGER_EMAILS } from './pages/Dashboard'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import SubmitReport from './components/SubmitReport';
 
-export default function App() {
-  const user = useAuth()
+function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Still loading auth state
-  if (user === undefined) {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', background: '#f5f5f0'
-      }}>
-        <div style={{ textAlign: 'center', color: '#999' }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
-          <div>Loading…</div>
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <p>Loading...</p>
       </div>
-    )
+    );
   }
 
-  if (!user) return <Login />
-
-  const isManager = MANAGER_EMAILS.includes(user.email?.toLowerCase())
-  return isManager ? <Dashboard /> : <SubmitReport />
+  return (
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={user ? <Navigate to="/dashboard" replace /> : <Login />}
+        />
+        <Route
+          path="/dashboard"
+          element={user ? <Dashboard user={user} /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/submit"
+          element={user ? <SubmitReport user={user} /> : <Navigate to="/" replace />}
+        />
+      </Routes>
+    </Router>
+  );
 }
+
+export default App;
