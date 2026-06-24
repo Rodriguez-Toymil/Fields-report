@@ -92,6 +92,7 @@ export default function SubmitReport() {
     if (!service) return setError('Please select a service type.')
     if (!photoBefore) return setError('Please add a BEFORE photo.')
     if (!photoAfter) return setError('Please add an AFTER photo.')
+    if (!gps) return setError('Please enable GPS location on your device to submit a report.')
     setError('')
     setSubmitting(true)
     try {
