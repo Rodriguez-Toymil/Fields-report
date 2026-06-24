@@ -6,19 +6,24 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import SubmitReport from './pages/SubmitReport'
 
+const ADMIN_EMAILS = ['rrodriguez@marytierrapr.com']
+const MANAGER_EMAILS = ['fssales@marytierrapr.com']
+
+function getRole(user) {
+  if (!user) return null
+  if (ADMIN_EMAILS.includes(user.email)) return 'admin'
+  if (MANAGER_EMAILS.includes(user.email)) return 'manager'
+  return 'rep'
+}
+
 function App() {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(undefined)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser)
-      setLoading(false)
-    })
-    return () => unsubscribe()
+    return onAuthStateChanged(auth, u => setUser(u ?? null))
   }, [])
 
-  if (loading) {
+  if (user === undefined) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <p>Loading...</p>
@@ -26,12 +31,34 @@ function App() {
     )
   }
 
+  const role = getRole(user)
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
-        <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/" replace />} />
-        <Route path="/submit" element={user ? <SubmitReport user={user} /> : <Navigate to="/" replace />} />
+        <Route
+          path="/"
+          element={
+            !user ? <Login /> :
+            role === 'rep' ? <Navigate to="/submit" replace /> :
+            <Navigate to="/dashboard" replace />
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            !user ? <Navigate to="/" replace /> :
+            role === 'rep' ? <Navigate to="/submit" replace /> :
+            <Dashboard />
+          }
+        />
+        <Route
+          path="/submit"
+          element={
+            !user ? <Navigate to="/" replace /> :
+            <SubmitReport />
+          }
+        />
       </Routes>
     </Router>
   )
