@@ -22,7 +22,7 @@ export default function Login() {
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center',
       justifyContent: 'center', padding: '1rem',
-      backgroundImage: 'url(/logo butchers.jpg)',
+      backgroundImage: 'url(/logo-butchers.jpg)',
       backgroundSize: 'cover', backgroundPosition: 'center'
     }}>
       <div style={{
@@ -31,7 +31,7 @@ export default function Login() {
       }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <img
-            src="/MT logo.png"
+            src="/MT-logo.png"
             alt="Mar y Tierra"
             style={{ height: 80, objectFit: 'contain', marginBottom: '1rem' }}
           />
