@@ -1,4 +1,4 @@
-jsximport { useState } from 'react'
+import { useState } from 'react'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
 import { db, auth } from '../lib/firebase'
