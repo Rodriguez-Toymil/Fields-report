@@ -12,7 +12,7 @@ function ReportCard({ r, onExpand, expanded }) {
             <div style={{ fontSize: 12, color: '#999', marginTop: 3 }}>{formatDate(r.submittedAt)}</div>
             {r.latitude && (
               
-               href={"https://maps.google.com/?q=" + r.latitude + "," + r.longitude}
+                href={r.gpsLink}
                 target="_blank"
                 rel="noreferrer"
                 style={{ fontSize: 11, color: '#1565c0', marginTop: 3, display: 'block' }}
