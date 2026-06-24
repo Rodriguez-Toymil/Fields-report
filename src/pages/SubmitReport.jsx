@@ -1,5 +1,3 @@
-Good catch! That's an important feature for field visit verification. Let me update SubmitReport.jsx to include before/after photo uploads using Firebase Storage.
-Replace src/pages/SubmitReport.jsx with this:
 jsximport { useState } from 'react'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
