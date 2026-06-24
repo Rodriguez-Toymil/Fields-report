@@ -1,0 +1,16 @@
+// firestore.rules
+// Paste this into Firebase Console → Firestore → Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /reports/{reportId} {
+      // Any signed-in user can create a report
+      allow create: if request.auth != null;
+      // Only the rep who created it OR the manager can read
+      allow read: if request.auth != null;
+      // Nobody can edit or delete submitted reports
+      allow update, delete: if false;
+    }
+  }
+}
