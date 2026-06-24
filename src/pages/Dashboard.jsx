@@ -12,16 +12,7 @@ function ReportCard({ r, onExpand, expanded }) {
             <div style={{ fontWeight: 700, fontSize: 15, color: '#1a1a2e' }}>{r.store}</div>
             <div style={{ fontSize: 13, color: '#666', marginTop: 2 }}>{r.repEmail}</div>
             <div style={{ fontSize: 12, color: '#999', marginTop: 3 }}>{formatDate(r.submittedAt)}</div>
-            {r.latitude && (
-              
-                href={r.gpsLink}
-                target="_blank"
-                rel="noreferrer"
-                style={{ fontSize: 11, color: '#1565c0', marginTop: 3, display: 'block' }}
-              >
-                View on map: {r.latitude.toFixed(5)}, {r.longitude.toFixed(5)}
-              </a>
-            )}
+           {r.latitude && <div style={{ fontSize: 11, color: '#999', marginTop: 3 }}>GPS: {r.latitude.toFixed(5)}, {r.longitude.toFixed(5)}</div>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
             <span style={{
