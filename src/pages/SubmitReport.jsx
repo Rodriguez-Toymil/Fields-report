@@ -1,6 +1,3 @@
-I can see the problem — the file has extra </div> tags at lines 127-128 that don't belong there. The file structure is broken with mismatched closing tags.
-The easiest fix is to completely replace the file. Click the pencil icon (top right of the file view) to edit, select all, delete everything, and paste this clean version:
-jsximport { useState } from 'react'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
 import { db, auth } from '../lib/firebase'
