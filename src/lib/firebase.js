@@ -1,4 +1,3 @@
-js
 // ============================================================
 //  STEP 1: Replace these values with your Firebase project config
 //  Get them from: Firebase Console → Project Settings → Your Apps
