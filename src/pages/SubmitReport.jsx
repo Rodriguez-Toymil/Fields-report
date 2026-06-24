@@ -1,12 +1,18 @@
+import { useState } from 'react'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
 import { db, auth } from '../lib/firebase'
 import { useAuth } from '../lib/AuthContext'
 
 const SERVICE_TYPES = [
-  'Shelf restocking','Product display setup','Promotional display',
-  'Price tag update','Inventory check','Competitor analysis',
-  'New product placement','Other'
+  'Shelf restocking',
+  'Product display setup',
+  'Promotional display',
+  'Price tag update',
+  'Inventory check',
+  'Competitor analysis',
+  'New product placement',
+  'Other'
 ]
 
 export default function SubmitReport() {
@@ -80,7 +86,9 @@ export default function SubmitReport() {
           marginBottom: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
         }}>
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 6 }}>Store / supermarket</label>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 6 }}>
+              Store / supermarket
+            </label>
             <input
               style={{ width: '100%', padding: '11px 13px', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fafafa' }}
               value={store}
@@ -89,7 +97,9 @@ export default function SubmitReport() {
             />
           </div>
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 6 }}>Service performed</label>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 6 }}>
+              Service performed
+            </label>
             <select
               style={{ width: '100%', padding: '11px 13px', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fafafa' }}
               value={service}
@@ -100,7 +110,9 @@ export default function SubmitReport() {
             </select>
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 6 }}>Notes</label>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 6 }}>
+              Notes
+            </label>
             <textarea
               style={{ width: '100%', padding: '11px 13px', border: '1.5px solid #e0e0e0', borderRadius: 9, fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fafafa', height: 80, resize: 'vertical' }}
               value={notes}
@@ -116,10 +128,6 @@ export default function SubmitReport() {
         >
           {submitting ? 'Submitting...' : 'Submit Report'}
         </button>
-      </div>
-    </div>
-  )
-}
       </div>
     </div>
   )
