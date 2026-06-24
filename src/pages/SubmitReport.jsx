@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { signOut } from 'firebase/auth'
@@ -67,9 +67,19 @@ export default function SubmitReport() {
   const [notes, setNotes] = useState('')
   const [photoBefore, setPhotoBefore] = useState(null)
   const [photoAfter, setPhotoAfter] = useState(null)
+  const [gps, setGps] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => setGps({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+        () => setGps(null)
+      )
+    }
+  }, [])
 
   async function uploadPhoto(file, path) {
     const storageRef = ref(storage, path)
@@ -86,10 +96,10 @@ export default function SubmitReport() {
     setSubmitting(true)
     try {
       const timestamp = Date.now()
-      const base = `reports/${user.uid}/${timestamp}`
+      const base = 'reports/' + user.uid + '/' + timestamp
       const [beforeURL, afterURL] = await Promise.all([
-        uploadPhoto(photoBefore, `${base}/before.jpg`),
-        uploadPhoto(photoAfter, `${base}/after.jpg`)
+        uploadPhoto(photoBefore, base + '/before.jpg'),
+        uploadPhoto(photoAfter, base + '/after.jpg')
       ])
       await addDoc(collection(db, 'reports'), {
         repEmail: user.email,
@@ -99,6 +109,8 @@ export default function SubmitReport() {
         notes: notes.trim(),
         photoBefore: beforeURL,
         photoAfter: afterURL,
+        latitude: gps ? gps.latitude : null,
+        longitude: gps ? gps.longitude : null,
         submittedAt: serverTimestamp(),
       })
       setSubmitted(true)
@@ -145,6 +157,15 @@ export default function SubmitReport() {
             background: '#fff0f0', border: '1px solid #fcc', borderRadius: 10,
             padding: '12px 16px', color: '#c00', fontSize: 14, marginBottom: 14
           }}>{error}</div>
+        )}
+
+        {gps && (
+          <div style={{
+            background: '#e3f2fd', borderRadius: 10, padding: '8px 14px',
+            fontSize: 12, color: '#1565c0', marginBottom: 14
+          }}>
+            GPS captured: {gps.latitude.toFixed(5)}, {gps.longitude.toFixed(5)}
+          </div>
         )}
 
         <div style={{
@@ -198,7 +219,7 @@ export default function SubmitReport() {
           onClick={handleSubmit}
           disabled={submitting}
         >
-          {submitting ? 'Uploading photos...' : 'Submit Report'}
+          {submitting ? 'Uploading...' : 'Submit Report'}
         </button>
       </div>
     </div>
