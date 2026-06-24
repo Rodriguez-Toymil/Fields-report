@@ -31,7 +31,7 @@ export default function Login() {
       }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <img
-            src="/MT-logo.png"
+            src="/mt-logo.png"
             alt="Mar y Tierra"
             style={{ height: 80, objectFit: 'contain', marginBottom: '1rem' }}
           />
