@@ -1,4 +1,6 @@
 function ReportCard({ r, onExpand, expanded }) {
+  const gpsLink = r.latitude ? "https://maps.google.com/?q=" + String(r.latitude) + "," + String(r.longitude) : ""
+  r = { ...r, gpsLink }
   return (
     <div style={{
       background: '#fff', borderRadius: 14, marginBottom: 12,
