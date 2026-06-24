@@ -4,28 +4,24 @@ import { signOut } from 'firebase/auth'
 import { db, auth } from '../lib/firebase'
 import { useAuth } from '../lib/AuthContext'
 
-// ============================================================
-// STEP 2: Add your email here so you get the manager dashboard
-// All other users see the rep submit form
-// ============================================================
 export const MANAGER_EMAILS = [
-  'rrodriguez@marytierrapr.com'  // ← replace with your email
+  'rrodriguez@marytierrapr.com'
 ]
 
 function formatDate(ts) {
-  if (!ts) return '—'
+  if (!ts) return '-'
   const d = ts.toDate ? ts.toDate() : new Date(ts)
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
-    ' · ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+    ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 }
 
-function StatCard({ label, value, color = '#1a1a2e' }) {
+function StatCard({ label, value, color }) {
   return (
     <div style={{
       background: '#fff', borderRadius: 12, padding: '1rem',
       boxShadow: '0 1px 4px rgba(0,0,0,0.06)', textAlign: 'center'
     }}>
-      <div style={{ fontSize: 26, fontWeight: 700, color }}>{value}</div>
+      <div style={{ fontSize: 26, fontWeight: 700, color: color || '#1a1a2e' }}>{value}</div>
       <div style={{ fontSize: 12, color: '#888', marginTop: 3 }}>{label}</div>
     </div>
   )
@@ -49,54 +45,18 @@ function ReportCard({ r, onExpand, expanded }) {
               background: '#e8eaf6', color: '#3949ab', fontSize: 11,
               fontWeight: 600, padding: '3px 10px', borderRadius: 20
             }}>{r.service}</span>
-            <span style={{ fontSize: 18 }}>{expanded ? '▲' : '▼'}</span>
+            <span style={{ fontSize: 18 }}>{expanded ? 'v' : '>'}</span>
           </div>
         </div>
       </div>
-
       {expanded && (
         <div style={{ borderTop: '1px solid #f0f0f0', padding: '1rem 1.25rem' }}>
-          {r.gps && (
-            <div style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>
-              📍 {r.gps.lat}, {r.gps.lng} · ±{r.gps.accuracy}m accuracy
-              <a
-                href={`https://maps.google.com/?q=${r.gps.lat},${r.gps.lng}`}
-                target="_blank" rel="noreferrer"
-                style={{ color: '#3949ab', marginLeft: 8, textDecoration: 'none', fontWeight: 600 }}
-              >View on map →</a>
-            </div>
-          )}
-
           {r.notes && (
             <div style={{
               background: '#f9f9f9', borderRadius: 8, padding: '10px 14px',
               fontSize: 13, color: '#444', marginBottom: 14, lineHeight: 1.6
-            }}>
-              {r.notes}
-            </div>
+            }}>{r.notes}</div>
           )}
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {['photosBefore', 'photosAfter'].map((key, i) => (
-              <div key={key}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#888', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  {i === 0 ? 'Before' : 'After'}
-                </div>
-                {r[key] ? (
-                  <a href={r[key]} target="_blank" rel="noreferrer">
-                    <img src={r[key]} alt={i === 0 ? 'Before' : 'After'}
-                      style={{ width: '100%', borderRadius: 10, objectFit: 'cover', maxHeight: 200, display: 'block' }} />
-                  </a>
-                ) : (
-                  <div style={{
-                    background: '#f5f5f5', borderRadius: 10, height: 120,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 13, color: '#bbb'
-                  }}>No photo</div>
-                )}
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>
@@ -127,7 +87,7 @@ export default function Dashboard() {
   }, [filterDays])
 
   const filtered = filterRep
-    ? reports.filter(r => r.repEmail?.toLowerCase().includes(filterRep.toLowerCase()))
+    ? reports.filter(r => r.repEmail && r.repEmail.toLowerCase().includes(filterRep.toLowerCase()))
     : reports
 
   const uniqueReps = [...new Set(reports.map(r => r.repEmail))].filter(Boolean)
@@ -145,8 +105,8 @@ export default function Dashboard() {
         position: 'sticky', top: 0, zIndex: 10
       }}>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 16 }}>📊 Manager Dashboard</div>
-          <div style={{ fontSize: 11, opacity: 0.7, marginTop: 1 }}>{user?.email}</div>
+          <div style={{ fontWeight: 700, fontSize: 16 }}>Manager Dashboard</div>
+          <div style={{ fontSize: 11, opacity: 0.7, marginTop: 1 }}>{user && user.email}</div>
         </div>
         <button onClick={() => signOut(auth)} style={{
           background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
@@ -157,7 +117,7 @@ export default function Dashboard() {
       <div style={{ padding: '16px 12px 80px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginBottom: 16 }}>
           <StatCard label="Reports today" value={todayCount} color="#2e7d32" />
-          <StatCard label={`Last ${filterDays} days`} value={filtered.length} />
+          <StatCard label={'Last ' + filterDays + ' days'} value={filtered.length} />
           <StatCard label="Active reps" value={uniqueReps.length} color="#1565c0" />
         </div>
 
@@ -195,16 +155,14 @@ export default function Dashboard() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: '#999' }}>Loading reports…</div>
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#999' }}>Loading reports...</div>
         ) : filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: '#999' }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
-            No reports found for this period.
-          </div>
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#999' }}>No reports found.</div>
         ) : (
           filtered.map(r => (
             <ReportCard
-              key={r.id} r={r}
+              key={r.id}
+              r={r}
               expanded={expanded === r.id}
               onExpand={id => setExpanded(expanded === id ? null : id)}
             />
