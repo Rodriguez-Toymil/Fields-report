@@ -1,7 +1,10 @@
-import { useState } from 'react'
+Good catch! That's an important feature for field visit verification. Let me update SubmitReport.jsx to include before/after photo uploads using Firebase Storage.
+Replace src/pages/SubmitReport.jsx with this:
+jsximport { useState } from 'react'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { signOut } from 'firebase/auth'
-import { db, auth } from '../lib/firebase'
+import { db, auth, storage } from '../lib/firebase'
 import { useAuth } from '../lib/AuthContext'
 
 const SERVICE_TYPES = [
@@ -15,33 +18,97 @@ const SERVICE_TYPES = [
   'Other'
 ]
 
+function PhotoPicker({ label, photo, onChange }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 6 }}>
+        {label}
+      </label>
+      {photo ? (
+        <div style={{ position: 'relative' }}>
+          <img
+            src={URL.createObjectURL(photo)}
+            alt={label}
+            style={{ width: '100%', borderRadius: 9, maxHeight: 200, objectFit: 'cover' }}
+          />
+          <button
+            onClick={() => onChange(null)}
+            style={{
+              position: 'absolute', top: 8, right: 8,
+              background: 'rgba(0,0,0,0.6)', color: '#fff',
+              border: 'none', borderRadius: 20, padding: '4px 10px',
+              fontSize: 12, cursor: 'pointer'
+            }}>Remove</button>
+        </div>
+      ) : (
+        <label style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', border: '2px dashed #d0d0d0',
+          borderRadius: 9, padding: '28px 16px', cursor: 'pointer',
+          background: '#fafafa', color: '#999', fontSize: 13
+        }}>
+          <span style={{ fontSize: 32, marginBottom: 8 }}>+</span>
+          <span>Tap to take photo or upload</span>
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+            onChange={e => onChange(e.target.files[0] || null)}
+          />
+        </label>
+      )}
+    </div>
+  )
+}
+
 export default function SubmitReport() {
   const user = useAuth()
   const [store, setStore] = useState('')
   const [service, setService] = useState('')
   const [notes, setNotes] = useState('')
+  const [photoBefore, setPhotoBefore] = useState(null)
+  const [photoAfter, setPhotoAfter] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
 
+  async function uploadPhoto(file, path) {
+    const storageRef = ref(storage, path)
+    await uploadBytes(storageRef, file)
+    return getDownloadURL(storageRef)
+  }
+
   async function handleSubmit() {
     if (!store.trim()) return setError('Please enter the store name.')
     if (!service) return setError('Please select a service type.')
+    if (!photoBefore) return setError('Please add a BEFORE photo.')
+    if (!photoAfter) return setError('Please add an AFTER photo.')
     setError('')
     setSubmitting(true)
     try {
+      const timestamp = Date.now()
+      const base = `reports/${user.uid}/${timestamp}`
+      const [beforeURL, afterURL] = await Promise.all([
+        uploadPhoto(photoBefore, `${base}/before.jpg`),
+        uploadPhoto(photoAfter, `${base}/after.jpg`)
+      ])
       await addDoc(collection(db, 'reports'), {
         repEmail: user.email,
         repName: user.displayName || user.email,
         store: store.trim(),
         service,
         notes: notes.trim(),
+        photoBefore: beforeURL,
+        photoAfter: afterURL,
         submittedAt: serverTimestamp(),
       })
       setSubmitted(true)
       setStore('')
       setService('')
       setNotes('')
+      setPhotoBefore(null)
+      setPhotoAfter(null)
       setTimeout(() => setSubmitted(false), 4000)
     } catch (err) {
       setError('Submission failed. Check your connection and try again.')
@@ -81,6 +148,7 @@ export default function SubmitReport() {
             padding: '12px 16px', color: '#c00', fontSize: 14, marginBottom: 14
           }}>{error}</div>
         )}
+
         <div style={{
           background: '#fff', borderRadius: 14, padding: '1.25rem',
           marginBottom: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
@@ -96,6 +164,7 @@ export default function SubmitReport() {
               placeholder="e.g. Walmart - Bayamon PR"
             />
           </div>
+
           <div style={{ marginBottom: 14 }}>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 6 }}>
               Service performed
@@ -109,6 +178,10 @@ export default function SubmitReport() {
               {SERVICE_TYPES.map(s => <option key={s}>{s}</option>)}
             </select>
           </div>
+
+          <PhotoPicker label="Photo BEFORE" photo={photoBefore} onChange={setPhotoBefore} />
+          <PhotoPicker label="Photo AFTER" photo={photoAfter} onChange={setPhotoAfter} />
+
           <div>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#444', marginBottom: 6 }}>
               Notes
@@ -121,12 +194,13 @@ export default function SubmitReport() {
             />
           </div>
         </div>
+
         <button
           style={{ width: '100%', padding: '14px', background: '#1a1a2e', color: '#fff', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: 'pointer', opacity: submitting ? 0.6 : 1 }}
           onClick={handleSubmit}
           disabled={submitting}
         >
-          {submitting ? 'Submitting...' : 'Submit Report'}
+          {submitting ? 'Uploading photos...' : 'Submit Report'}
         </button>
       </div>
     </div>
