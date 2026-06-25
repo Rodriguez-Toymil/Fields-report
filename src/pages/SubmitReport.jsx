@@ -110,8 +110,8 @@ export default function SubmitReport() {
         notes: notes.trim(),
         photoBefore: beforeURL,
         photoAfter: afterURL,
-        latitude: gps ? gps.latitude : null,
-        longitude: gps ? gps.longitude : null,
+        latitude: gps.latitude,
+        longitude: gps.longitude,
         submittedAt: serverTimestamp(),
       })
       setSubmitted(true)
@@ -159,11 +159,6 @@ export default function SubmitReport() {
             padding: '12px 16px', color: '#c00', fontSize: 14, marginBottom: 14
           }}>{error}</div>
         )}
-
-        <div style={{
-          background: '#fff', borderRadius: 14, padding: '1.25rem',
-          marginBottom: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
-        }}>
 
         <div style={{
           background: '#fff', borderRadius: 14, padding: '1.25rem',
