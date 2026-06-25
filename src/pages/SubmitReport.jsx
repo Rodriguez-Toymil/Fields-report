@@ -160,14 +160,14 @@ export default function SubmitReport() {
           }}>{error}</div>
         )}
 
-        {gps && (
-          <div style={{
-            background: '#e3f2fd', borderRadius: 10, padding: '8px 14px',
-            fontSize: 12, color: '#1565c0', marginBottom: 14
-          }}>
-            GPS captured: {gps.latitude.toFixed(5)}, {gps.longitude.toFixed(5)}
-          </div>
-        )}
+       {gps && (
+  <div style={{
+    background: '#e3f2fd', borderRadius: 10, padding: '8px 14px',
+    fontSize: 12, color: '#1565c0', marginBottom: 14
+  }}>
+    GPS captured: {gps.latitude.toFixed(5)}, {gps.longitude.toFixed(5)}
+  </div>
+)
 
         <div style={{
           background: '#fff', borderRadius: 14, padding: '1.25rem',
